@@ -29,8 +29,8 @@ button.alt{background:#2a211d;font-size:16px;padding:10px 14px;border:1px solid 
 .ai span.d{display:block;font-size:12px;color:var(--dim);margin-top:2px}
 .ai i{font-style:normal;color:var(--dim);font-size:16px}
 .ai.on i{color:var(--blood)}
-#achToast{position:absolute;left:50%;top:max(14px,env(safe-area-inset-top,0px));transform:translate(-50%,-140%);transition:transform .45s;z-index:9;background:#14100e;border:1px solid var(--blood);padding:10px 18px;font-size:13px;letter-spacing:.08em;text-align:center;max-width:calc(100% - 32px);pointer-events:none}
-#achToast.show{transform:translate(-50%,0)}
+#achToast{position:absolute;left:50%;top:max(14px,env(safe-area-inset-top,0px));transform:translate(-50%,-160%);transition:transform .45s,opacity .45s;opacity:0;z-index:9;background:#14100e;border:1px solid var(--blood);padding:10px 18px;font-size:13px;letter-spacing:.08em;text-align:center;max-width:calc(100% - 32px);pointer-events:none}
+#achToast.show{transform:translate(-50%,0);opacity:1}
 #achToast b{display:block;font-family:var(--display);font-weight:400;font-size:20px;color:var(--ink);letter-spacing:.05em}
 .tub{font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;background:none;border:0;padding:0;cursor:pointer;transition:color .5s}
 .tub.red{color:#7d0f0f}
@@ -126,7 +126,7 @@ label.fs select{font-family:var(--mono);background:#1a1412;color:var(--ink);bord
 #pause button.go.alt,#end button.go.alt{font-size:17px}
 #pause button.go:hover,#end button.go:hover{transform:scale(1.1);background:var(--blood);border-color:#fff;filter:none}
 #menu .seg button:hover,#menu .tub:hover,#menu label.fs select:hover{transform:scale(1.1)}
-.overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,3,3,.72);padding:16px max(16px,env(safe-area-inset-left,0px));z-index:5}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,3,3,.72);padding:16px max(16px,env(safe-area-inset-left,0px));z-index:5;overflow:auto;touch-action:pan-y;align-items:safe center}
 .panel{max-width:460px;width:100%;background:var(--panel);border:1px solid #3a2f29;padding:28px;display:grid;gap:16px}
 .panel h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,9vw,64px);line-height:.95;margin:0;text-transform:uppercase;letter-spacing:.02em;text-wrap:balance}
 .panel h1 em{color:var(--blood);font-style:normal}
@@ -145,6 +145,7 @@ button.go:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 #touch,#touch *{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 #run{position:absolute;right:max(24px,env(safe-area-inset-right,0px));bottom:max(36px,env(safe-area-inset-bottom,0px));width:84px;height:84px;border-radius:50%;border:2px solid #5a4a40;background:rgba(20,14,12,.5);color:var(--ink);font-family:var(--display);font-size:18px;display:grid;place-items:center;pointer-events:auto;letter-spacing:.06em}
 @media (max-width:520px){#mini{width:96px;height:96px}.bar{width:100px}}
+@media (max-height:560px){#menu .panel{gap:6px!important}#menu .panel h1{font-size:clamp(34px,9vh,54px)}#menu .panel p{display:none}#menu .alts{grid-template-columns:repeat(3,1fr)}#menu button.go{padding:8px 10px;font-size:18px;min-width:0}#menu .alts button.go{font-size:12px;padding:8px 4px}#menu .fs{font-size:12px}#menu .seg button{padding:5px 12px}#fVal{padding:5px 6px}#pause .panel h1,#end .panel h1{font-size:clamp(34px,9vh,54px)}#pause .panel,#end .panel{gap:8px}#pause button.go,#end button.go{padding:8px 10px;min-width:0;width:100%}}
 </style>
 
 <div id="game">
@@ -179,7 +180,7 @@ button.go:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
     <div class="avh">Avatar <small>(seen in multiplayer)</small></div><canvas id="avCv" width="320" height="320"></canvas>
     <div class="row"><label for="avHue">Colour</label><input type="range" id="avHue" min="0" max="359"><span></span></div><div id="avOpts" style="width:100%;display:grid;gap:6px"></div>
     <button class="go" id="setClose">Back</button></div></div>
-  <div class="overlay" id="cr" hidden style="z-index:8"><div class="panel"><h1>Cre<em>dits</em></h1><p class="sm2">Tubby's Labyrinth</p><p class="by">Made by Zaklato Games Studio</p><p class="sm2">Thanks for playing.</p><button class="go" id="crClose">Back</button></div></div>
+  <div class="overlay" id="cr" hidden style="z-index:8"><div class="panel"><h1>Cre<em>dits</em></h1><p class="sm2">Tubby's Labyrinth</p><p class="by">Made by Nocturnal Moon Studios</p><p class="sm2">Thanks for playing.</p><button class="go" id="crClose">Back</button></div></div>
   <div class="overlay" id="lm" hidden>
     <div class="panel">
       <h1>Level <em>maker</em></h1>
@@ -761,7 +762,7 @@ function tickEnding(dt){const S=endSeq,G=girl;S.t+=dt;
     if(S.gph==='climb'){const ok=walk(lx-1.0,lz,3.4,.05);if(ok&&G.g.position.y>2.2){S.ph=5;S.t=0;S.c=0}}}
   else if(S.ph===5){girlStep(dt);const t=S.t;P.x=lx-1.0+Math.min(.5,t*.5);P.pitch=Math.min(.5,t*.25);camera.position.set(P.x,1.7+t*2.6+Math.sin(t*13)*.04,P.z);let dy=-Math.PI/2-P.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));P.yaw+=dy*Math.min(1,dt*6);camera.rotation.set(P.pitch,P.yaw,0);
     S.c-=dt;if(S.c<=0){clink();S.c=.27}$('fade').style.opacity=Math.max(0,Math.min(1,(t-1.6)/1.3));
-    if(t>3.4){S.ph=6;S.t=0;unlock('thanks');subEl().textContent='Thanks for playing.';{const f=document.createElement('div');f.textContent="Tubby's Act 1 finished";f.style.cssText='position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:var(--display);font-size:clamp(36px,8vw,84px);letter-spacing:.04em;text-transform:uppercase;color:#c0281a;text-shadow:0 0 24px rgba(0,0,0,.9);z-index:6;pointer-events:none;opacity:0;transition:opacity 1.2s';$('act').parentNode.appendChild(f);setTimeout(()=>{f.style.opacity=1},50)}}}
+    if(t>3.4){S.ph=6;S.t=0;unlock('thanks');if(hard)unlock('stronger');subEl().textContent='Thanks for playing.';{const f=document.createElement('div');f.textContent="Tubby's Act 1 finished";f.style.cssText='position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:var(--display);font-size:clamp(36px,8vw,84px);letter-spacing:.04em;text-transform:uppercase;color:#c0281a;text-shadow:0 0 24px rgba(0,0,0,.9);z-index:6;pointer-events:none;opacity:0;transition:opacity 1.2s';$('act').parentNode.appendChild(f);setTimeout(()=>{f.style.opacity=1},50)}}}
   else{$('fade').style.opacity=1;if(S.t>6&&!S.done){S.done=true;location.reload()}}}
 function startFake(f){ensureRoom();setDoors(fkRoom.re,0);fkRoom.m.root.position.set(fkRoom.O.x,0,fkRoom.O.z+8);fkRoom.m.root.rotation.y=Math.PI;
   fk8={t:0,f,x0:P.x,z0:P.z,yaw0:P.yaw,yaw1:Math.atan2(-f.nx,-f.nz),stage:1,tx:f.cx-f.nx*1.0,tz:f.cz-f.nz*1.0,wt:0};state='fake';$('hold').hidden=true;unlock('deceiving')}
@@ -939,7 +940,7 @@ function build(){
   discovered=Array.from({length:W},()=>Array(W).fill(false));
   stamina=100;exhausted=false;timeT=0;awake=false;wakeT=8;laughCd=4;lift=null;dingT=5;mapTime=0;fat.position.set(E.x,0,E.z);
   if((level===15&&!inf)){E.speed=3.8;if(exitG)exitG.visible=false}
-  waitT=0;$('lvl').textContent=qq?'???':cust?'\u2605':level;
+  waitT=0;$('lvl').textContent=qq?'???':cust?'\u2605':level;if(inf&&!qq&&!cust&&level>=100)unlock('wow');
   P.gy=0;P.jy=0;P.y=0;P.vy=0;P.stun=0;jumpReq=false;{const jb=$('jumpBtn');if(jb)jb.style.display=(level===10&&!inf)?'block':'none'}
   if(qq){wakeT=1e9;E.m.root.visible=false}else if((level===10&&!inf)){wakeT=6;E.speed=6.5;rbK='';E.m.root.visible=false}else E.m.root.visible=true;
 }
@@ -960,11 +961,12 @@ function growl(){if(!ac)return;const t=ac.currentTime,out=ac.createGain();out.ga
 // ---------- input ----------
 addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE'){doAct();if(!e.repeat)tapE=true}if(e.code==='KeyM'&&!hard)$('mini').hidden=!$('mini').hidden;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space'].includes(e.code))e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=false);
-document.addEventListener('mousemove',e=>{if(state!=='play'&&!(state==='ending'&&endSeq&&endSeq.ph>=2&&endSeq.ph<=4))return;if(document.pointerLockElement===canvas||dragging){P.yaw-=e.movementX*.0024*cfg.sens/100;P.pitch=Math.max(-1.1,Math.min(1.1,P.pitch-e.movementY*.0024*cfg.sens/100))}});
-let dragging=false;canvas.addEventListener('mousedown',()=>{dragging=true;if(state==='play'&&canvas.requestPointerLock)try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(_){}});
+let mlSkip=0;function reqLock(){try{const r=canvas.requestPointerLock({unadjustedMovement:true});if(r&&r.catch)r.catch(()=>{try{const r2=canvas.requestPointerLock();if(r2&&r2.catch)r2.catch(()=>{})}catch(_){}})}catch(_){try{canvas.requestPointerLock()}catch(__){}}}
+document.addEventListener('mousemove',e=>{if(state!=='play'&&!(state==='ending'&&endSeq&&endSeq.ph>=2&&endSeq.ph<=4))return;if(document.pointerLockElement===canvas||dragging){const mx=e.movementX||0,my=e.movementY||0;if(mlSkip>0){mlSkip--;return}if(Math.abs(mx)>300||Math.abs(my)>300)return;P.yaw-=mx*.0024*cfg.sens/100;P.pitch=Math.max(-1.1,Math.min(1.1,P.pitch-my*.0024*cfg.sens/100))}});
+let dragging=false;canvas.addEventListener('mousedown',()=>{dragging=true;if(state==='play'&&canvas.requestPointerLock)reqLock()});
 addEventListener('mouseup',()=>dragging=false);
-document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement===canvas)hadLock=true;else if(hadLock&&state==='play'){state='paused';$('pause').hidden=false}});
-function lock(){try{const r=canvas.requestPointerLock&&canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(_){}}
+document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement===canvas){hadLock=true;mlSkip=3}else if(hadLock&&state==='play'){state='paused';$('pause').hidden=false}});
+function lock(){reqLock()}
 
 // touch
 const isTouch=matchMedia('(pointer:coarse)').matches;if(isTouch)$('game').classList.add('touch');
@@ -1001,6 +1003,8 @@ const ACH=[
  ['geo','Geoexpert','Explore a map fully above Floor 5'],
  ['down','Down we go','Enter Floor ???',1],
  ['thanks','Thanks for playing!','You beat Act 1'],
+ ['stronger','Stronger','Beat the game on Hard difficulty'],
+ ['wow','Wow','Reach Floor 100 on Infinite difficulty'],
  ['unwet','Destination Unwet','Remove water from the hallways'],
  ['red','Coated in red','Click the title in the main menu',1]];
 const AKEY='tubbys-labyrinth-achievements';
